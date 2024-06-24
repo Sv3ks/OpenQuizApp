@@ -1,0 +1,8 @@
+class ColorScheme:
+	TEXT=		'#A1A1A1'
+	LIGHT=		'#E8E6F4'
+	DARK=		'#2B2B2B'
+	FIRST=		'#82F500'
+	SECOND=		'#F57C00'
+	THIRD=		'#00C3F5'
+	FOURTH=		'#CA02E5'

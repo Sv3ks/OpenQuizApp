@@ -2,6 +2,7 @@ import socket
 from threading import Thread
 from sci import SCI
 import json
+import time
 
 
 class Host:
@@ -28,7 +29,8 @@ class Host:
         while True:
             print('Listening')
             s.listen()
-            Thread(target=self.handle_client,args=s.accept()).start()
+            Thread(target=self.handle_client,args=(s.accept(),)).start()
+            time.sleep(.5)
     
     def handle_client(self,
                       client: tuple[socket.socket, tuple[str,int]],
@@ -40,19 +42,33 @@ class Host:
         print(f'Established connection to client {client_id}')
 
         if not self.open:
-            conn.send(SCI()[1])
+            conn.send(SCI[1])
             conn.close()
             print(f'Declined client {client_id}')
+            return
         
-        conn.send(SCI()[0])
+        conn.send(SCI[0])
         print(f'Accepted client {client_id}')
         client_info = json.loads(conn.recv(1024))
-        self.clients.append({
+        client_data = {
             'conn': conn,
             'ip': addr[0],
             'port': addr[1],
             'username': client_info['username'],
-        })
+        }
+        self.clients.append(client_data)
+        is_leaving = conn.recv(1024)
+        if is_leaving == SCI[10]:
+            print('Client disconnected')
+            self.clients.remove(client_data)
+        elif is_leaving == SCI[9]:
+            print('Client is still here')
+        else:
+            print('Client is malicious, removing')
+            self.clients.remove(client_data)
 
 if __name__ == '__main__':
-    Host()
+    host = Host(open=True)
+    while True:
+        time.sleep(2)
+        print(host.clients)

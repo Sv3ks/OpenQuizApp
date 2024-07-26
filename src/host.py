@@ -24,6 +24,21 @@ class Host:
         self.s = s
         Thread(target=self.listen_for_clients).start()
 
+    def send_bytes_client(self,
+                         client: dict,
+                         bytes_message: bytes
+                         ):
+        Thread(target=client['conn'].sendall,args=(bytes_message,)).start()
+        print('started sending bytes to client')
+
+    def broadcast_clients(self,
+                          message: str | bytes
+                          ):
+        if type(message) == str:
+            message = bytes(message)
+        for client in self.clients:
+            self.send_bytes_client(client,message)
+
     def listen_for_clients(self) -> None:
         s = self.s
         while True:
@@ -67,8 +82,20 @@ class Host:
             print('Client is malicious, removing')
             self.clients.remove(client_data)
 
+    def start(self,
+              quiz: dict
+              ):
+        self.open = False
+        self.broadcast_clients(SCI[8])
+        
+
 if __name__ == '__main__':
+    import keyboard
     host = Host(open=True)
     while True:
         time.sleep(2)
-        print(host.clients)
+        if keyboard.is_pressed('s'):
+            print('Starting')
+            with open('./test_quiz.json') as f:
+                host.start(json.load(f))
+        print(f'Clients: {len(host.clients)}')

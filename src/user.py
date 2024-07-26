@@ -15,7 +15,7 @@ class User:
     def connect(self,
                 ip: str,
                 port: int = 12345,
-                ):
+                ) -> None:
         s = self.s
 
         print(f'Connecting to host at {ip}:{port}')
@@ -27,11 +27,11 @@ class User:
             return
         print(f'Server accepted')
         s.send(json.dumps(self.userdata).encode())
-        return
 
 if __name__ == '__main__':
     user = User(username='test')
     user.connect(ip='127.0.0.1')
-    input('Press enter to disconnect')
-
-    user.s.send(SCI[10])
+    if user.s.recv(1024) == SCI[8]:
+        user.s.send(SCI[9])
+    else:
+        print('unknown answer')

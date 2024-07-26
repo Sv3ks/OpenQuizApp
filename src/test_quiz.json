@@ -1,0 +1,25 @@
+{
+    "title": "Test Quiz",
+    "questions": [
+        {
+            "title": "Test question 1",
+            "answer_type": 0,
+            "answers": {
+                "incorrect answer 1": false,
+                "incorrect answer 2": false,
+                "incorrect answer 3": false,
+                "correct answer": true
+            }
+        },
+        {
+            "title": "Test question 2",
+            "answer_type": 0,
+            "answers": {
+                "incorrect answer 1": false,
+                "correct answer 1": true,
+                "incorrect answer 3": false,
+                "correct answer 2": true
+            }
+        }
+    ]
+}

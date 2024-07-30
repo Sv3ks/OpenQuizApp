@@ -3,7 +3,8 @@
     "questions": [
         {
             "title": "Test question 1",
-            "answer_type": 0,
+            "type": "classic",
+            "time": 10,
             "answers": {
                 "incorrect answer 1": false,
                 "incorrect answer 2": false,
@@ -13,12 +14,11 @@
         },
         {
             "title": "Test question 2",
-            "answer_type": 0,
+            "type": "boolean",
+            "time": 10,
             "answers": {
-                "incorrect answer 1": false,
-                "correct answer 1": true,
-                "incorrect answer 3": false,
-                "correct answer 2": true
+                "incorrect answer": false,
+                "correct answer": true
             }
         }
     ]

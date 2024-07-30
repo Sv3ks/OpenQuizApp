@@ -27,11 +27,14 @@ class User:
             return
         print(f'Server accepted')
         s.send(json.dumps(self.userdata).encode())
+        if s.recv(1024) != SCI[8]:
+            print('unknown response')
+        s.send(SCI[9])
+        question = json.loads(s.recv(1024))
+        print(question)
+        s.send('correct answer'.encode())
 
 if __name__ == '__main__':
-    user = User(username='test')
+    import random
+    user = User(username=''.join(random.choice('abcde') for _ in range(5)))
     user.connect(ip='127.0.0.1')
-    if user.s.recv(1024) == SCI[8]:
-        user.s.send(SCI[9])
-    else:
-        print('unknown answer')

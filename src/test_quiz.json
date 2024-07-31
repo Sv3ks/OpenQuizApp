@@ -1,5 +1,6 @@
 {
     "title": "Test Quiz",
+    "max_clients": 10,
     "questions": [
         {
             "title": "Test question 1",

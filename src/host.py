@@ -16,13 +16,23 @@ class Host:
     times: dict[str,datetime] = {}
     points: dict[str,int] = {}
     disconnected_users: list[str] = []
+    quiz: dict
+    username_filter: bool
+    banned_usernames: list
 
     def __init__(self,
+                 quiz: dict,
                  port: int = 12345,
-                 open: bool = False,
+                 open_for_clients: bool = False,
+                 username_filter: bool = True,
                  ) -> None:
+        self.quiz = quiz
         self.port = port
-        self.open = open
+        self.open = open_for_clients
+        self.username_filter = username_filter
+
+        with open('banned_usernames.json') as f:
+            self.banned_usernames = json.load(f)
 
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.bind(('', port))
@@ -95,12 +105,33 @@ class Host:
         if not self.open:
             conn.send(SCI[1])
             conn.close()
-            print(f'Declined client {client_id}')
+            print(f'Declined client {client_id}, server not open for clients')
             return
+        
+        if len(self.clients) == self.quiz['max_clients']:
+            conn.send(SCI[2])
+            conn.close()
+            print(f'Declined client {client_id}, server full')
+            return
+
         
         conn.send(SCI[0])
         print(f'Accepted client {client_id}')
         client_info = json.loads(conn.recv(1024))
+
+        if self.username_filter and client_info['username'] in self.banned_usernames:
+            conn.send(SCI[3])
+            conn.close()
+            print(f'Declined client {client_id}, username is banned')
+            return
+
+        for loop_client in self.clients:
+            if loop_client['username'] == client_info['username']:
+                conn.send(SCI[4])
+                conn.close()
+                print(f'Declined client {client_id}, username was taken')
+                return
+
         client_data = {
             'conn': conn,
             'ip': addr[0],
@@ -118,16 +149,14 @@ class Host:
             print('Client is malicious, removing')
             self.clients.remove(client_data)
 
-    def start(self,
-              quiz: dict
-              ):
+    def start(self,):
         self.open = False
 
         for client in self.clients:
             self.points[client['username']] = 0
 
         self.broadcast_clients(SCI[8])
-        for question in quiz['questions']:
+        for question in self.quiz['questions']:
             self.answers = {}
             print(f'Prompting question "{question['title']}"')
 
@@ -159,11 +188,12 @@ class Host:
 
 if __name__ == '__main__':
     import keyboard
-    host = Host(open=True)
+    with open('./test_quiz.json') as f:
+        host = Host(quiz=json.load(f),open_for_clients=True)
     while True:
         time.sleep(2)
         if keyboard.is_pressed('s'):
             print('Starting')
             with open('./test_quiz.json') as f:
-                host.start(json.load(f))
+                host.start()
         #print(f'Clients: {len(host.clients)}')

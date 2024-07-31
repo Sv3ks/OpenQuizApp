@@ -35,6 +35,5 @@ class User:
         s.send('correct answer'.encode())
 
 if __name__ == '__main__':
-    import random
-    user = User(username=''.join(random.choice('abcde') for _ in range(5)))
+    user = User(username='bad_username')
     user.connect(ip='127.0.0.1')
